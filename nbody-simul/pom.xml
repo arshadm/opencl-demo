@@ -1,0 +1,54 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <name>nbody-simul</name>
+    <groupId>io.spinner.opencl-demo</groupId>
+    <artifactId>nbody-simul</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>io.spinner</groupId>
+        <artifactId>opencl-demo</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.spinner.opencl-demo</groupId>
+            <artifactId>oclnative</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*.so</include>
+                        <include>**/*.so.*</include>
+                        <include>META-INF/*</include>
+                        <include>META-INF/services/**</include>
+                        <include>org.*</include>
+                        <include>**/*.properties</include>
+                        <include>**/*.class</include>
+                        <include>**/*.dll</include>
+                        <include>**/*.dylib</include>
+                        <include>lib/*</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
