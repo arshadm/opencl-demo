@@ -2,8 +2,7 @@ package io.spinor.oclnative;
 
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.Pointer;
-import org.bytedeco.javacpp.annotation.Platform;
-import org.bytedeco.javacpp.annotation.StdString;
+import org.bytedeco.javacpp.annotation.*;
 
 import java.util.Properties;
 
@@ -12,7 +11,7 @@ import java.util.Properties;
  *
  * @author A. Mahmood (arshadm@spinor.io)
  */
-@Platform(include = "OclNative.h", compiler = "cpp11", link = "oclnative", library = "jnioclnative")
+@Platform(include = {"OclNative.h", "<vector>"}, compiler = "cpp11", link = "oclnative", library = "jnioclnative")
 public class OclNative extends Pointer {
     static {
         // using our custom platform properties from resources, and on user request,
@@ -27,11 +26,29 @@ public class OclNative extends Pointer {
         }
     }
 
+
     public OclNative() {
         allocate();
     }
 
     private native void allocate();
 
-    public native @StdString String hello();
+    public native PointerVector hello();
+
+    /* */
+    @Name("std::vector<void*>")
+    @Namespace("")
+    public static class PointerVector extends Pointer {
+        static { Loader.load(); }
+        public PointerVector()       { allocate();  }
+        public PointerVector(long n) { allocate(n); }
+        private native void allocate();                  // this = new vector<vector<void*> >()
+        private native void allocate(long n);            // this = new vector<vector<void*> >(n)
+
+        @Name("operator[]")
+        public native Pointer get(long n);
+        public native Pointer at(long n);
+
+        public native long size();
+    }
 }

@@ -14,7 +14,7 @@ object NBodySimulation {
   def main(args: Array[String]): Unit = {
     val oclNative = new OclNative()
 
-    logger.info("Hello World: " + oclNative.hello())
+    logger.info("Hello World: " + oclNative.hello().get(0))
   }
 }
 

@@ -3,10 +3,11 @@
 #define OCLNATIVE_H
 
 #include <string>
+#include <vector>
 
 class OclNative {
 public:
-    const std::string hello();
+    std::vector<void*>* hello();
 };
 
 #endif /*! OCLNATIVE_H */
