@@ -13,3 +13,6 @@ find_package(OpenCL REQUIRED)
 find_package(CLBLAS REQUIRED)
 
 add_library(oclnative SHARED ${SOURCE_FILES})
+
+target_include_directories(oclnative PUBLIC ${OPENCL_INCLUDE_DIRS} ${CLBLAS_INCLUDE_DIRS})
+target_link_libraries(oclnative LINK_PUBLIC ${OPENCL_LIBRARIES} ${CLBLAS_LIBRARIES} stdc++)
