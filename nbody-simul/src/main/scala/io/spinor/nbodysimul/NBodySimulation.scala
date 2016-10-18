@@ -3,10 +3,10 @@ package io.spinor.nbodysimul
 import io.spinor.oclnative.OclNative
 import io.spinor.oclnative.ocl.{Context, Device, Platform}
 import org.apache.commons.io.IOUtils
+import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
 
 import scala.util.Random
-import scala.collection.JavaConverters._
 
 /**
   * The companion object for the [[NBodySimulation]] class.
@@ -17,19 +17,36 @@ object NBodySimulation {
   val logger = LoggerFactory.getLogger(classOf[NBodySimulation])
   val oclNative = OclNative.getInstance()
 
+  var devices: java.util.List[Device] = null
+
   def main(args: Array[String]): Unit = {
     val platforms = Platform.getPlatforms()
 
     // perform the matrix multiplication across each of the devices
-    platforms.get(0).getDevices().asScala.map(this.matrixMultiplication(_))
+    devices = platforms.get(0).getDevices()
+
+    startSparkContext()
+  }
+
+  /**
+    * Start the spark context, and process data.
+    */
+  private def startSparkContext(): Unit = {
+    val conf = new SparkConf().setAppName("Matrix Multiplication").setMaster("local[2]")
+    val sc = new SparkContext(conf)
+
+    val rdd = sc.makeRDD(Array(0, 1, 2), 1)
+    for (deviceNumber <- rdd) {
+      matrixMultiplication(deviceNumber)
+    }
   }
 
   /**
     * Carry out matrix multiplication using the given device.
     *
-    * @param device the device
     */
-  private def matrixMultiplication(device: Device): Unit = {
+  private def matrixMultiplication(deviceNumber: Int): Unit = {
+    val device = devices.get(deviceNumber)
     val context = new Context(device)
     val matrixMultKernel = IOUtils.toString(getClass().getResourceAsStream("/matrixmul.cl"), "UTF-8")
     val programId = oclNative.createProgram(context.getContextId(), matrixMultKernel)
@@ -58,7 +75,7 @@ object NBodySimulation {
 
     val endTime = System.currentTimeMillis()
 
-    logger.info(device.getDeviceName + " - completed in " + (endTime - startTime) / 1000.0f + " seconds")
+    logger.info("**** - " + device.getDeviceName + " - completed in " + (endTime - startTime) / 1000.0f + " seconds")
   }
 }
 

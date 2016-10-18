@@ -74,16 +74,14 @@ public class Device {
      * @return the string representation
      */
     public String toString() {
-        return MoreObjects
-            .toStringHelper(this)
-            .add("deviceInfo", deviceInfo)
-            .toString();
+        return MoreObjects.toStringHelper(this).add("deviceInfo", deviceInfo).toString();
     }
 
     /**
      * Gets the devices for the specified platform id.
      *
      * @param platformId the platform id
+     *
      * @return the list of devices
      */
     public static List<Device> getDevices(final Pointer platformId) {
@@ -91,7 +89,7 @@ public class Device {
         final PointerPointer deviceIds = oclNative.getDeviceIds(platformId);
         final List<Device> devices = new ArrayList<>();
 
-        for(int i=0; i<deviceIds.capacity(); i++) {
+        for (int i = 0; i < deviceIds.capacity(); i++) {
             devices.add(new Device(deviceIds.get(i)));
         }
 
