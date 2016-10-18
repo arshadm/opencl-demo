@@ -9,3 +9,4 @@ CTestTestfile.cmake
 .idea/
 build/
 target/
+*.log

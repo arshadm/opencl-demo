@@ -60,7 +60,8 @@ public class OclNative extends Pointer {
 
     public native Pointer createCommandQueue(Pointer deviceId, Pointer contextId);
 
-    public native float executeDotProduct(Pointer programId, @StdVector float[] vector1, @StdVector float[] vector2);
+    public native @StdVector float[] executeMatrixMultiplication(Pointer contextId, Pointer commands, Pointer kernelId,
+        @StdString String deviceName, int ncols, @StdVector float[] vector1, @StdVector float[] vector2);
 
     @Namespace("")
     @Name("std::vector<std::string>")

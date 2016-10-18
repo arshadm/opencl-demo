@@ -1,9 +1,12 @@
 package io.spinor.nbodysimul
 
 import io.spinor.oclnative.OclNative
-import io.spinor.oclnative.ocl.Platform
-import org.bytedeco.javacpp.{Pointer, PointerPointer}
+import io.spinor.oclnative.ocl.{Context, Device, Platform}
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
+
+import scala.util.Random
+import scala.collection.JavaConverters._
 
 /**
   * The companion object for the [[NBodySimulation]] class.
@@ -12,38 +15,50 @@ import org.slf4j.LoggerFactory
   */
 object NBodySimulation {
   val logger = LoggerFactory.getLogger(classOf[NBodySimulation])
-  val oclNative = OclNative.getInstance();
+  val oclNative = OclNative.getInstance()
 
   def main(args: Array[String]): Unit = {
     val platforms = Platform.getPlatforms()
-    logger.info(platforms.toString);
+
+    // perform the matrix multiplication across each of the devices
+    platforms.get(0).getDevices().asScala.map(this.matrixMultiplication(_))
   }
 
   /**
-    * Display platform info.
+    * Carry out matrix multiplication using the given device.
     *
-    * @param platforms the platforms
+    * @param device the device
     */
-  private def displayPlatformInfo(platforms: PointerPointer[_ <: Pointer]): Unit = {
-    logger.info("Number of platforms: " + platforms.capacity())
-    for (i <- 0 until platforms.capacity().toInt) {
-      val platformInfo = oclNative.getPlatformInfo(platforms.get(i))
-      logger.info("Platform info: ")
-      for (j <- 0 until platformInfo.size().toInt) {
-        logger.info("  " + platformInfo.get(j).getString)
-      }
-      logger.info("Platform Extensions: " + oclNative.getPlatformExtensions(platforms.get(i)))
+  private def matrixMultiplication(device: Device): Unit = {
+    val context = new Context(device)
+    val matrixMultKernel = IOUtils.toString(getClass().getResourceAsStream("/matrixmul.cl"), "UTF-8")
+    val programId = oclNative.createProgram(context.getContextId(), matrixMultKernel)
 
-      val deviceIds = oclNative.getDeviceIds(platforms.get(i))
-      logger.info("Number of devices: " + deviceIds.capacity())
-      for(j <- 0 until deviceIds.capacity().toInt) {
-        val deviceInfo = oclNative.getDeviceInfo(deviceIds.get(j))
-        logger.info("Device Info:")
-        for (j <- 0 until deviceInfo.size().toInt) {
-          logger.info("    " + deviceInfo.get(j).getString)
-        }
+    oclNative.buildProgram(device.getDeviceId(), programId)
+
+    val commandQueue = oclNative.createCommandQueue(device.getDeviceId, context.getContextId)
+    val matrixMulKernel = oclNative.createKernel(programId, "matrixMul")
+
+    val ncols = 1024
+    val nrows = 1024
+    val random = new Random()
+
+    val matrix1 = new Array[Float](ncols * nrows)
+    val matrix2 = new Array[Float](ncols * nrows)
+    for (i <- 0 until nrows) {
+      for (j <- 0 until ncols) {
+        matrix1(i * ncols + j) = random.nextFloat()
       }
     }
+
+    val startTime = System.currentTimeMillis()
+
+    val matrix3 = oclNative.executeMatrixMultiplication(context.getContextId(), commandQueue, matrixMulKernel,
+      device.getDeviceName(), ncols, matrix1, matrix2)
+
+    val endTime = System.currentTimeMillis()
+
+    logger.info(device.getDeviceName + " - completed in " + (endTime - startTime) / 1000.0f + " seconds")
   }
 }
 

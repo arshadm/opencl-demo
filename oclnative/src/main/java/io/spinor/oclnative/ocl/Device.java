@@ -60,6 +60,15 @@ public class Device {
     }
 
     /**
+     * Gets the device name.
+     *
+     * @return the device name
+     */
+    public String getDeviceName() {
+        return deviceInfo.get(CL_DEVICE_NAME);
+    }
+
+    /**
      * Gets the string representation.
      *
      * @return the string representation

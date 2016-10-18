@@ -91,6 +91,15 @@ public class Platform {
     }
 
     /**
+     * Gets the devices.
+     *
+     * @return the devices
+     */
+    public List<Device> getDevices() {
+        return devices;
+    }
+
+    /**
      *
      * @return
      */

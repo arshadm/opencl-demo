@@ -35,7 +35,8 @@ public:
 
     void* createCommandQueue(void* deviceId, void* contextId);
 
-    float executeDotProduct(void* programId, std::vector<float> vector1, std::vector<float> vector2);
+    std::vector<float> executeMatrixMultiplication(void* context, void* commands, void* kernelId, std::string deviceName, int ncols, std::vector<float> matrix1,
+    	std::vector<float> matrix2);
 };
 
 #endif /*! OCLNATIVE_H */

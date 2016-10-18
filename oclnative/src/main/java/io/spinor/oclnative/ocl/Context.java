@@ -22,4 +22,13 @@ public class Context {
 
         this.contextId = oclNative.createContext(device.getDeviceId());
     }
+
+    /**
+     * Gets the context id.
+     *
+     * @return the context id
+     */
+    public Pointer getContextId() {
+        return contextId;
+    }
 }
